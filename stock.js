@@ -5,7 +5,7 @@ if (process.argv[2] == '-q') {
     var stock = process.argv[3];
     var inc = Number(process.argv[4]);
     
-    jsdom.env('http://www.nasdaq.com/symbol/' + stock + '/real-time', function(err, window) {
+    jsdom.env('http://www.nasdaq.com/symbol/' + stock, function(err, window) {
 	if (err) {
 	    console.log(err);
 	}
@@ -15,19 +15,21 @@ if (process.argv[2] == '-q') {
 	    var priceOld = Number(priceSplitOld[1]);
 		
 	    function calculateStock() {
-		var priceDollarNew = window.document.getElementsByClassName('qwidget-dollar')[0].textContent;
-		var priceSplitNew = priceDollarNew.split('$');
-		var priceNew = Number(priceSplitNew[1]);
+		jsdom.env('http://www.nasdaq.com/symbol/' + stock, function(err, window) {
+		    var priceDollarNew = window.document.getElementsByClassName('qwidget-dollar')[0].textContent;
+		    var priceSplitNew = priceDollarNew.split('$');
+		    var priceNew = Number(priceSplitNew[1]);
 		    
-		if (priceNew >= (priceOld + inc)) {
-		    console.log('SELL AT: ' + priceNew);
-		    clearInterval(interval);
-		    //window.close();
-		}
-		else {
-		    console.log(priceNew);
-		    //window.close();
-		}
+		    if (priceNew >= (priceOld + inc)) {
+			console.log('SELL AT: ' + priceNew);
+			clearInterval(interval);
+			window.close();
+		    }
+		    else {
+			console.log(priceNew);
+			//window.close();
+		    }
+		});
 	    }
 	    
 	    var interval = setInterval(calculateStock, 5000);
